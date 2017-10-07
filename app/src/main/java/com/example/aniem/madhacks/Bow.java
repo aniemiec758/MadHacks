@@ -17,6 +17,13 @@ public class Bow extends AppCompatActivity {
     private ProgressBar progBow;
     private View bow;
     private Button button;
+
+    // 1x, 2x, 3x images
+    private View onered; private View onegreen;
+    private View twored; private View twogreen;
+    private View threered; private View threegreen;
+
+    // globar variables
     private int numArrows; // number of arrows being shot at once
     private int duration; // cooldown timer duration
     private int upProg; // what the progressBar increments by as it cools down
@@ -48,20 +55,33 @@ public class Bow extends AppCompatActivity {
         progBow = (ProgressBar)findViewById(R.id.bowProg);
         progBow.setVisibility(ProgressBar.INVISIBLE); // makes it invisible at first
         progBow.setProgress(0);
+
+        // 1x, 2x, 3x images
+        onered = findViewById(R.id.onered); onegreen = findViewById(R.id.onegreen);
+        twored = findViewById(R.id.twored); twogreen = findViewById(R.id.twogreen);
+        threered = findViewById(R.id.threered); threegreen = findViewById(R.id.threegreen);
+        // visibilities
+        onered.setVisibility(View.INVISIBLE); onegreen.setVisibility(View.VISIBLE); // starts out as the default
+        twored.setVisibility(View.VISIBLE); twogreen.setVisibility(View.INVISIBLE);
+        threered.setVisibility(View.VISIBLE); threegreen.setVisibility(View.INVISIBLE);
+        // setting on-click listeners to change how many arrows are in the quiver
+        onered.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { changeArrow(1); } }); // changes to only one arrow
+        twored.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { changeArrow(2); } }); // changes to two arrows
+        threered.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { changeArrow(3); } }); // changes to three arrows
     }
 
     private void barCool() {
         progBow.setVisibility(ProgressBar.VISIBLE); // player can see the progBar
         /**/ // set different cases for one arrow, two arrows, etc
         if (numArrows == 2) { // two arrows being shot at once
-            duration = 2600; // duration of timer
-            upProg = 4; // what the progress bar increments by
+            duration = 1400; // duration of timer
+            upProg = 8; // what the progress bar increments by
         } else if (numArrows == 3) { // three arrows being shot at once
-            duration = 3100;
-            upProg = 3;
+            duration = 1700;
+            upProg = 6;
         } else { // just one arrow, default
-            duration = 2100;
-            upProg = 5;
+            duration = 1100;
+            upProg = 10;
         }
 
         new CountDownTimer(duration, 100) { // filling up the bar until completion
@@ -78,4 +98,22 @@ public class Bow extends AppCompatActivity {
     private void setNumArrows(int n) { // changes it to be one, two, or three arrows in the quiver
         numArrows = n;
     } /**/ // voice commands
+
+    private void changeArrow(int n) { // changes the number of arrows being shot at once
+        // sets all buttons to red
+        onered.setVisibility(View.VISIBLE);
+        twored.setVisibility(View.VISIBLE);
+        threered.setVisibility(View.VISIBLE);
+        if (n == 3) { // 3x
+            threegreen.setVisibility(View.VISIBLE);
+            numArrows = 3;
+            /**/ // some other commands, to be sure... i.e. sending data to laptop
+        } else if (n == 2) { // 2x
+            twogreen.setVisibility(View.VISIBLE);
+            numArrows = 2;
+        } else { // only one arrow, base case
+            onegreen.setVisibility(View.VISIBLE);
+            numArrows = 1;
+        }
+    }
 }
