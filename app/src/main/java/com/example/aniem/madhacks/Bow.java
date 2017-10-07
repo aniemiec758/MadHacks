@@ -1,7 +1,11 @@
 package com.example.aniem.madhacks;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.CountDownTimer;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.view.View.OnClickListener;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -11,24 +15,36 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Locale;
 
 public class Bow extends AppCompatActivity {
 
+    // bow sprites
     private ProgressBar progBow;
     private View bow;
     private View bowtwo;
     private View bowthree;
-    private Button button;
 
     // 1x, 2x, 3x images
     private View onered; private View onegreen;
     private View twored; private View twogreen;
     private View threered; private View threegreen;
 
+    // speech recognition
+    private SpeechRecognizer mSpeech;
+    private Intent intent;
+
     // global variables
+    private ArrayList<String> speech; // arrayList of speech commands
     private int numArrows = 1; // number of arrows being shot at once
     private int duration = 1100; // cooldown timer duration
     private int upProg = 10; // what the progressBar increments by as it cools down
+    private TextView test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +79,16 @@ public class Bow extends AppCompatActivity {
         onered.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { changeArrow(1); } }); // changes to only one arrow
         twored.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { changeArrow(2); } }); // changes to two arrows
         threered.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { changeArrow(3); } }); // changes to three arrows
+
+        /**/ // for speech debug only:
+        test = (TextView) findViewById(R.id.test);
+        //promptSpeechInput();
+
+        // creates the speech intent /**/ // work in progress ...
+        intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH); // creates an Intent
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM); // processes speech to turn to text
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault()); // language of the device
+        //mSpeech.setRecognitionListener(new SpeechRecognitionListener());
     }
 
     private void barCool() {
@@ -125,4 +151,32 @@ public class Bow extends AppCompatActivity {
 
         // gets correct bow&arrow sprite
     }
+
+    // voice commands !! /**/ remove below if all goes well
+    /*private void promptSpeechInput() {
+        // creates the speech intent
+        intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH); // creates an Intent
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM); // processes speech to turn to text
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault()); // language of the device
+
+        try {
+            startActivityForResult(intent, 10);
+        } catch(ActivityNotFoundException e) {
+            // Toast.makeText(MainActivity.this, "device does not support speech language", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int reqCode, int resCode, Intent i) {
+        super.onActivityResult(reqCode, resCode, i);
+
+        switch(reqCode) {
+            case 10: if(resCode==RESULT_OK && i!=null) { // speech is ok, Intent isn't null
+                speech = i.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                /** // do something with the text
+                test.setText(speech.get(0)); /** // debug, sets text to display onto screen
+            }
+                break;
+        }
+    }*/
 }
