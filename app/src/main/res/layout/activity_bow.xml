@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.example.aniem.madhacks.Bow">
 
+    <!-- bow images -->
     <ImageView
         android:id="@+id/Bow"
         android:layout_width="300dp"
@@ -17,7 +18,30 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
     />
+    <ImageView
+        android:id="@+id/bowtwo"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:rotation="90"
+        app:srcCompat="@drawable/twobow"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+    <ImageView
+        android:id="@+id/bowthree"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:rotation="90"
+        app:srcCompat="@drawable/threebow"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
+    <!-- 1x, 2x, 3x buttons -->
     <ImageView
         android:id="@+id/onered"
         android:layout_width="50dp"
@@ -78,7 +102,6 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="8dp"
         app:layout_constraintVertical_bias="0.957" />
-
     <ImageView
         android:id="@+id/threered"
         android:layout_width="50dp"
@@ -110,6 +133,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintVertical_bias="0.957" />
 
+    <!-- Progress bar -->
     <ProgressBar
         android:id="@+id/bowProg"
         style="?android:attr/progressBarStyleHorizontal"
