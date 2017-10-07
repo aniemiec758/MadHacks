@@ -1,5 +1,6 @@
 package com.example.aniem.madhacks;
 
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
@@ -15,6 +16,8 @@ public class Bow extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bow);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // locks screen to be "portrait"
 
         // create images
         bow = findViewById(R.id.Bow);
