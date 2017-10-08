@@ -40,6 +40,7 @@ public class Bow extends AppCompatActivity {
 
     // rotating the bows
     private View.OnTouchListener touchHandler;
+    float currentRotation; // keeps current rotation of bow constant when changing bows
 
     // speech recognition
     private SpeechRecognizer mSpeech;
@@ -55,6 +56,7 @@ public class Bow extends AppCompatActivity {
     // screen size
     private DisplayMetrics metrics;
     int screenWidth, screenHeight;
+    final int HEADER_OFFSET = 90; // height of the banner at the top of the app /**/ // get actual
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +101,12 @@ public class Bow extends AppCompatActivity {
         touchHandler = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                // getting the bow to the correct angle
                 rotateBow((int) event.getRawX(), (int) event.getRawY(), v); // rotates the bow based on position of player's finger
+                // upon releasing the bow
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    fire();
+                }
                 return true;
             }
         };
@@ -163,17 +170,19 @@ public class Bow extends AppCompatActivity {
         if (n == 3) { // 3x
             threegreen.setVisibility(View.VISIBLE); // selects correct sprite
             numArrows = 3; // sets correct amount of arrows to shoot
-            bowthree.setVisibility(View.VISIBLE);
-
-            /**/ // set new bow to be rotation of old bow, set all bows to 90* default
+            bowthree.setRotation(currentRotation); // same rotation to be the same as the bow that was just being used
+//            test.setText("rotation is now " + bowthree.getRotation() + ", old rotation was " + rotation);
+            bowthree.setVisibility(View.VISIBLE); // makes the bow visible
             /**/ // some other commands, to be sure... i.e. sending data to laptop
         } else if (n == 2) { // 2x
             twogreen.setVisibility(View.VISIBLE);
             numArrows = 2;
+            bowtwo.setRotation(currentRotation);
             bowtwo.setVisibility(View.VISIBLE);
         } else { // only one arrow, base case
             onegreen.setVisibility(View.VISIBLE);
             numArrows = 1;
+            bow.setRotation(currentRotation);
             bow.setVisibility(View.VISIBLE);
         }
     }
@@ -181,10 +190,19 @@ public class Bow extends AppCompatActivity {
     private void rotateBow(int x, int y, View v) { // will rotate the bow sprites
         int minY = (screenHeight-v.getHeight()) / 2;
         int maxY = minY + v.getHeight();
-        if (y > minY && y < maxY) { // so the bow doesn't fire when pressing buttons; must be touching the bow
-            v.setRotation(v.getRotation() + 30); /**/ // debug test
-            test.setText("bow rotation is now " + v.getRotation() + ", finger.x = " + x + " finger.y = " + y + ". sHeight = " + screenHeight + ", minY = " + minY + ", maxY = " + maxY + ".");
+        double theta = getTheta(x,y,v); // gets angle in degrees
+        if (y > minY/* && y < maxY*//**/) { // so the bow doesn't fire when pressing buttons; must be touching the bow
+            v.setRotation((float)theta-90); // sets bow rotation to track finger
+            currentRotation = v.getRotation(); // sets global variable to keep track of a bow's rotation
         }
+    }
+
+    private double getTheta(int x, int y, View v) { // gets the angle between your finger and an object, with respect to the vertical
+        double w = x - (screenWidth/2);
+        double h = y - (screenHeight/2) - HEADER_OFFSET; // -90 due to header pixel offsets
+        //double theta = Math.toDegrees(h/w);
+        double theta = Math.toDegrees(Math.atan2(h,w));
+        return theta; // returns angle
     }
 
     // voice commands !! /**/ remove below if all goes well
