@@ -1,39 +1,22 @@
 package com.example.aniem.madhacks;
-
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Point;
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
-import android.view.View.OnClickListener;
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.channels.AsynchronousCloseException;
-import java.nio.channels.ClosedByInterruptException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.NotYetBoundException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -135,27 +118,28 @@ public class Bow extends AppCompatActivity {
         bow.setOnTouchListener(touchHandler); bowtwo.setOnTouchListener(touchHandler); bowthree.setOnTouchListener(touchHandler);
 
         // servers and sockets
+        ThreadClass t = new ThreadClass();
+        t.run();
+
         androidPort = 4321; // same as SpiderServer.java's port
         try {
             outSocket = new ServerSocket(androidPort); // socket is set up
-        } catch (IOException e) {
-            test.setText("Couldn't connect to androidPort.");
+        } catch (Exception e) {
+            test.setText("Couldn't connect to androidPort. (" + e.getClass().getName() + ")");
             //e.printStackTrace();
         }
         try {
-            client = outSocket.accept(); // Android gets in to socket
+            ThreadClass t = new ThreadClass();
+            t.run();
+            //client = outSocket.accept(); // Android gets in to socket
             //client = new Socket("127.0.0.1",4323);
-        }/* catch (Exception e) {
+        } catch (Exception e) {
             test.setText("Couldn't connect client to outSocket.");
             //e.printStackTrace();
-        }*/
+        }
         //catch (ClosedChannelException e) { test.setText("ClosedChannelException"); }
         //catch (AsynchronousCloseException e) { test.setText("Asynchronous"); }
-        catch (ClosedByInterruptException e) { test.setText("ClosedBy"); }
-        catch (NotYetBoundException e) { test.setText("NotYet"); }
-        catch (SecurityException e) { test.setText("Security"); }
-        catch (IOException e) { test.setText("IO"); }
-        catch (Exception e) { test.setText("" + e.getClass().getName()); }
+        //catch (Exception e) { test.setText("Couldn't set up client socket. (" + e.getClass().getName() + ")"); }
         /*
         try {
             out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(client.getOutputStream())), true); // handing output over to server
@@ -289,4 +273,25 @@ public class Bow extends AppCompatActivity {
                 break;
         }
     }*/
+}
+
+class ThreadClass extends Thread {
+    public int androidPort;        // sets port number
+    public ServerSocket outSocket; // creates socket
+    public Socket client;          // connects to socket as a client
+    public PrintWriter out;        // handles output to server socket
+
+    @Override
+    public void run() {
+        try {
+            outSocket = new ServerSocket(4321);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            client = outSocket.accept();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
