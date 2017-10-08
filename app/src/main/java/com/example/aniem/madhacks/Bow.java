@@ -1,6 +1,7 @@
 package com.example.aniem.madhacks;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.speech.RecognizerIntent;
@@ -13,7 +14,9 @@ import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -118,9 +121,6 @@ public class Bow extends AppCompatActivity {
         bow.setOnTouchListener(touchHandler); bowtwo.setOnTouchListener(touchHandler); bowthree.setOnTouchListener(touchHandler);
 
         // servers and sockets
-        ThreadClass t = new ThreadClass();
-        t.run();
-
         androidPort = 4321; // same as SpiderServer.java's port
         try {
             outSocket = new ServerSocket(androidPort); // socket is set up
@@ -129,19 +129,13 @@ public class Bow extends AppCompatActivity {
             //e.printStackTrace();
         }
         try {
-            ThreadClass t = new ThreadClass();
-            t.run();
             //client = outSocket.accept(); // Android gets in to socket
             //client = new Socket("127.0.0.1",4323);
         } catch (Exception e) {
-            test.setText("Couldn't connect client to outSocket.");
+            test.setText("Couldn't connect client to outSocket. (" + e.getClass().getName() + ")");
             //e.printStackTrace();
         }
-        //catch (ClosedChannelException e) { test.setText("ClosedChannelException"); }
-        //catch (AsynchronousCloseException e) { test.setText("Asynchronous"); }
-        //catch (Exception e) { test.setText("Couldn't set up client socket. (" + e.getClass().getName() + ")"); }
-        /*
-        try {
+        /*try {
             out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(client.getOutputStream())), true); // handing output over to server
         } catch (IOException e) {
             test.setText("Couldn't create PrintWriter, 'out.'");
@@ -275,23 +269,6 @@ public class Bow extends AppCompatActivity {
     }*/
 }
 
-class ThreadClass extends Thread {
-    public int androidPort;        // sets port number
-    public ServerSocket outSocket; // creates socket
-    public Socket client;          // connects to socket as a client
-    public PrintWriter out;        // handles output to server socket
+//private class PassInfo extends AsyncTask<> {
 
-    @Override
-    public void run() {
-        try {
-            outSocket = new ServerSocket(4321);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            client = outSocket.accept();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
+//}
