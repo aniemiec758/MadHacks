@@ -21,7 +21,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.NotYetBoundException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -42,6 +54,12 @@ public class Bow extends AppCompatActivity {
     private View.OnTouchListener touchHandler;
     float currentRotation; // keeps current rotation of bow constant when changing bows
 
+    // servers and sockets
+    private int androidPort;        // sets port number
+    private ServerSocket outSocket; // creates socket
+    private Socket client;          // connects to socket as a client
+    private PrintWriter out;        // handles output to server socket
+
     // speech recognition
     private SpeechRecognizer mSpeech;
     private Intent intent;
@@ -57,6 +75,9 @@ public class Bow extends AppCompatActivity {
     private DisplayMetrics metrics;
     int screenWidth, screenHeight;
     final int HEADER_OFFSET = 90; // height of the banner at the top of the app /**/ // get actual
+
+    public Bow() throws IOException {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +133,36 @@ public class Bow extends AppCompatActivity {
         };
         // setting this listener for the bows
         bow.setOnTouchListener(touchHandler); bowtwo.setOnTouchListener(touchHandler); bowthree.setOnTouchListener(touchHandler);
+
+        // servers and sockets
+        androidPort = 4321; // same as SpiderServer.java's port
+        try {
+            outSocket = new ServerSocket(androidPort); // socket is set up
+        } catch (IOException e) {
+            test.setText("Couldn't connect to androidPort.");
+            //e.printStackTrace();
+        }
+        try {
+            client = outSocket.accept(); // Android gets in to socket
+            //client = new Socket("127.0.0.1",4323);
+        }/* catch (Exception e) {
+            test.setText("Couldn't connect client to outSocket.");
+            //e.printStackTrace();
+        }*/
+        //catch (ClosedChannelException e) { test.setText("ClosedChannelException"); }
+        //catch (AsynchronousCloseException e) { test.setText("Asynchronous"); }
+        catch (ClosedByInterruptException e) { test.setText("ClosedBy"); }
+        catch (NotYetBoundException e) { test.setText("NotYet"); }
+        catch (SecurityException e) { test.setText("Security"); }
+        catch (IOException e) { test.setText("IO"); }
+        catch (Exception e) { test.setText("" + e.getClass().getName()); }
+        /*
+        try {
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(client.getOutputStream())), true); // handing output over to server
+        } catch (IOException e) {
+            test.setText("Couldn't create PrintWriter, 'out.'");
+            e.printStackTrace();
+        }*/ //*server
 
         /**/ // for speech debug only:
         //test = (TextView) findViewById(R.id.test);
@@ -171,7 +222,6 @@ public class Bow extends AppCompatActivity {
             threegreen.setVisibility(View.VISIBLE); // selects correct sprite
             numArrows = 3; // sets correct amount of arrows to shoot
             bowthree.setRotation(currentRotation); // same rotation to be the same as the bow that was just being used
-//            test.setText("rotation is now " + bowthree.getRotation() + ", old rotation was " + rotation);
             bowthree.setVisibility(View.VISIBLE); // makes the bow visible
             /**/ // some other commands, to be sure... i.e. sending data to laptop
         } else if (n == 2) { // 2x
@@ -190,11 +240,18 @@ public class Bow extends AppCompatActivity {
     private void rotateBow(int x, int y, View v) { // will rotate the bow sprites
         int minY = (screenHeight-v.getHeight()) / 2;
         int maxY = minY + v.getHeight();
-        double theta = getTheta(x,y,v); // gets angle in degrees
-        if (y > minY/* && y < maxY*//**/) { // so the bow doesn't fire when pressing buttons; must be touching the bow
-            v.setRotation((float)theta-90); // sets bow rotation to track finger
-            currentRotation = v.getRotation(); // sets global variable to keep track of a bow's rotation
+        double theta = getTheta(x,y,v);         // gets angle in degrees
+        if (y > minY/* && y < maxY*//**/) {     // so the bow doesn't fire when pressing buttons; must be touching the bow
+            v.setRotation((float)theta-90);     // sets bow rotation to track finger
+            currentRotation = v.getRotation();  // sets global variable to keep track of a bow's rotation
         }
+        // writing this to the server!
+        /*if (client.isConnected()) {     // if this app is connected to the server
+            out.print(v.getRotation()); // sends rotation to PrintWriter, "out"
+            out.flush();                // flushes to server
+        } else {
+            /**/ // try to reconnect ?
+        //} //*server
     }
 
     private double getTheta(int x, int y, View v) { // gets the angle between your finger and an object, with respect to the vertical
