@@ -3,9 +3,12 @@ package com.example.aniem.madhacks;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Point;
 import android.os.CountDownTimer;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View.OnClickListener;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -35,6 +38,9 @@ public class Bow extends AppCompatActivity {
     private View twored; private View twogreen;
     private View threered; private View threegreen;
 
+    // rotating the bows
+    private View.OnTouchListener touchHandler;
+
     // speech recognition
     private SpeechRecognizer mSpeech;
     private Intent intent;
@@ -44,7 +50,11 @@ public class Bow extends AppCompatActivity {
     private int numArrows = 1; // number of arrows being shot at once
     private int duration = 1100; // cooldown timer duration
     private int upProg = 10; // what the progressBar increments by as it cools down
-    private TextView test;
+    private TextView test; /**/ // tested the speechRecognition
+    private int rotation; // stores rotation of phone
+    // screen size
+    private DisplayMetrics metrics;
+    int screenWidth, screenHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +63,11 @@ public class Bow extends AppCompatActivity {
 
         // general environment
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // locks screen to be "portrait"
+        test = (TextView) findViewById(R.id.test); // for debugging purposes
+        metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        screenWidth = metrics.widthPixels;
+        screenHeight = metrics.heightPixels;
 
         // create different bow images
         bow = findViewById(R.id.Bow); bowtwo = findViewById(R.id.bowtwo); bowthree = findViewById(R.id.bowthree);
@@ -80,8 +95,19 @@ public class Bow extends AppCompatActivity {
         twored.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { changeArrow(2); } }); // changes to two arrows
         threered.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { changeArrow(3); } }); // changes to three arrows
 
+        // touch listener for bow rotation
+        touchHandler = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                rotateBow((int) event.getRawX(), (int) event.getRawY(), v); // rotates the bow based on position of player's finger
+                return true;
+            }
+        };
+        // setting this listener for the bows
+        bow.setOnTouchListener(touchHandler); bowtwo.setOnTouchListener(touchHandler); bowthree.setOnTouchListener(touchHandler);
+
         /**/ // for speech debug only:
-        test = (TextView) findViewById(R.id.test);
+        //test = (TextView) findViewById(R.id.test);
         //promptSpeechInput();
 
         // creates the speech intent /**/ // work in progress ...
@@ -135,9 +161,11 @@ public class Bow extends AppCompatActivity {
         twored.setVisibility(View.VISIBLE); twogreen.setVisibility(View.INVISIBLE);
         threered.setVisibility(View.VISIBLE); threegreen.setVisibility(View.INVISIBLE);
         if (n == 3) { // 3x
-            threegreen.setVisibility(View.VISIBLE);
-            numArrows = 3;
+            threegreen.setVisibility(View.VISIBLE); // selects correct sprite
+            numArrows = 3; // sets correct amount of arrows to shoot
             bowthree.setVisibility(View.VISIBLE);
+
+            /**/ // set new bow to be rotation of old bow, set all bows to 90* default
             /**/ // some other commands, to be sure... i.e. sending data to laptop
         } else if (n == 2) { // 2x
             twogreen.setVisibility(View.VISIBLE);
@@ -148,8 +176,15 @@ public class Bow extends AppCompatActivity {
             numArrows = 1;
             bow.setVisibility(View.VISIBLE);
         }
+    }
 
-        // gets correct bow&arrow sprite
+    private void rotateBow(int x, int y, View v) { // will rotate the bow sprites
+        int minY = (screenHeight-v.getHeight()) / 2;
+        int maxY = minY + v.getHeight();
+        if (y > minY && y < maxY) { // so the bow doesn't fire when pressing buttons; must be touching the bow
+            v.setRotation(v.getRotation() + 30); /**/ // debug test
+            test.setText("bow rotation is now " + v.getRotation() + ", finger.x = " + x + " finger.y = " + y + ". sHeight = " + screenHeight + ", minY = " + minY + ", maxY = " + maxY + ".");
+        }
     }
 
     // voice commands !! /**/ remove below if all goes well
